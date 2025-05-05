@@ -1,19 +1,25 @@
 const library = [];
 //isbn;title;author;year
-let inputData = prompt('Enter book data separate by ";"');
-while (inputData){
-    // TODO add to library only unique book
-    inputData = prompt('Enter book data separate by ";"');
+while (true){
+    const inputData = prompt('Enter book data separate by ";"');
+    if (!inputData){
+        break;
+    }
+    const properties = inputData.split(';').map(str=>str.trim());
+    if (properties[0] && 0 > findBook(library, properties[0])){
+        library.push(new Book(...properties));
+    }
 }
 
 printLibrary(library);
 
 function printLibrary(library){
-    // TODO print all  books to console
+    console.log(`Library of ${library.length} books:`);
+    library.forEach(book => console.log('    ', book.toString()));
 }
 
 function findBook(library, isbn){
-    // TODO return index if book with isbn exists and -1 otherwise
+    return library.findIndex(book => book.isbn === isbn);
 }
 
 function Book(isbn, title, author, year) {
