@@ -1,33 +1,23 @@
-const library = [];
-//isbn;title;author;year
-while (true){
-    const inputData = prompt('Enter book data separate by ";"');
-    if (!inputData){
+const library = new Library();
+while (true) {
+    //isbn;title;author;year
+    const inputStr = prompt('Enter book data (format ISBN;Title;Author;YYYY)):');
+    if (!inputStr){
         break;
     }
-    const properties = inputData.split(';').map(str=>str.trim());
-    if (properties[0] && 0 > findBook(library, properties[0])){
-        library.push(new Book(...properties));
-    }
+    library.addUniqueBook(Book.of(inputStr));
 }
+// library.addUniqueBook(new Book('0001', 'Cat\'s Cradle', 'Kurt Vonnegut', 1963));
+// library.addUniqueBook(new Book('1984', 'Nineteen Eighty-Four', 'George Orwell', 1949));
+// library.addUniqueBook(new Book('0001', 'We', 'Eugene Zamiatin', 1924));
+// library.addUniqueBook(new Book('0002', 'Brave New World', 'Aldous Huxley', 1932));
+// library.print();
 
-printLibrary(library);
-
-function printLibrary(library){
-    console.log(`Library of ${library.length} books:`);
-    library.forEach(book => console.log('    ', book.toString()));
-}
-
-function findBook(library, isbn){
-    return library.findIndex(book => book.isbn === isbn);
-}
-
-function Book(isbn, title, author, year) {
-    this.isbn = isbn;
-    this.title = title;
-    this.author = author;
-    this.year = +year;
-    this.toString = function () {
-        return `ISBN: ${this.isbn}, Title: ${this.title}, Author: ${this.author}, Year of publishing: ${this.year}`;
-    }
-}
+const ol = document.createElement('ol');
+library.forEach((book) => {
+    const li = document.createElement('li');
+    const text = document.createTextNode(book);
+    li.appendChild(text);
+    ol.appendChild(li);
+});
+document.body.appendChild(ol);
