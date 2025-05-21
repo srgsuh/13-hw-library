@@ -3,10 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Library</title>
-    <script src="./library.js" defer></script>
-    <script src="./script.js" defer></script>
+    <script src="./script/library.js" defer></script>
+    <script src="./script/script.js" defer></script>
 </head>
 <body>
-
+<div class="input-form">
+    <label>ISBN:
+        <input class="input-field" id="isbn" type="text">
+    </label>
+    <label>Title:
+        <input class="input-field" id="title" type="text">
+    </label>
+    <label>Author:
+        <input class="input-field" id="author" type="text">
+    </label>
+    <label>Year of publishing::
+        <input class="input-field" id="year" type="number">
+    </label>
+    <button id="addBook">Add book</button>
+</div>
+<div class="output-form">
+    <h2>List of books</h2>
+    <ol id="result"></ol>
+    <div id="stats">
+        <h2>Stats</h2>
+        <!--
+        Min year of publishing
+        Max year of publishing
+        Total books
+        -->
+    </div>
+</div>
 </body>
 </html>
