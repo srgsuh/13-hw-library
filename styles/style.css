@@ -1,0 +1,31 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: #F8F4E6;
+}
+h2 {
+    text-align: center;
+    margin: 8px 0;
+}
+.input-form, .output-form {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+.input-form input {
+    width: 100%;
+    margin-bottom: 8px;
+}
+/*.input-form label {
+    font-size: 1.2rem;
+}*/
+.input-form button {
+    width: 100%;
+    font-size: 1.2rem;
+    background-color: #10B981;
+}
+.input-form button:hover {
+    background-color: #059669;
+}
