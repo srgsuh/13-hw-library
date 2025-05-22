@@ -17,9 +17,10 @@ class Form {
         this.addBookBtn = document.getElementById('add-book');
         this.result = document.getElementById('result');
         this.stats = document.getElementById('stats');
+        this._initForm();
     }
 
-    initForm() {
+    _initForm() {
         //if (!this._checkValidForm()) return false;
         this.addBookBtn.addEventListener('click', () => this.addBookPressed());
         this.eventController.subscribe('add-book-success', (data) => this.addNewBook(data));

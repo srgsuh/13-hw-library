@@ -15,18 +15,15 @@ class Library {
     constructor(eventController) {
         this._books = new Map();
         this._eventController = eventController;
+        this._init();
     }
 
-    init() {
+    _init() {
         this._eventController.subscribe('add-book-request', (data) => this.addUniqueBook(data));
         return true;
     }
 
-    validateISBN(isbn) {
-        return isbn.length === 13;
-    }
-
-    validateBookData({isbn, title, author, year}) {
+    _validateBookData({isbn, title, author, year}) {
         const errors = []
         if (!isbn) {
             errors.push('ISBN is required');
@@ -63,7 +60,7 @@ class Library {
         return this._books.has(isbn);
     }
     addUniqueBook (bookData) {
-        const validationResult = this.validateBookData(bookData);
+        const validationResult = this._validateBookData(bookData);
         if (!validationResult.valid) {
             this._eventController.processEvent('add-book-fail', validationResult);
             return false;
@@ -91,5 +88,4 @@ class Library {
             maxYear: [...this._books.values()].reduce((max, book) => Math.max(max, book.year), MIN_YEAR),
         }
     }
-
 }
