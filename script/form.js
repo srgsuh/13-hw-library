@@ -14,33 +14,20 @@ class Form {
         this.title = document.getElementById('title');
         this.author = document.getElementById('author');
         this.year = document.getElementById('year');
-        this.addBookBtn = document.getElementById('addBookBtn');
+        this.addBookBtn = document.getElementById('add-book');
         this.result = document.getElementById('result');
         this.stats = document.getElementById('stats');
+        for (let key in this) {
+            console.log(key, this[key]);
+        }
     }
 
-    _checkValidForm() {
-        const fieldArray =[];
-        for (const key in this) {
-            fieldArray.push([key, this[key]]);
-        }
-        const errStr = fieldArray.filter((_, element) => !element)
-            .map((id, _) => `element id = ${id} is not found`)
-            .join(', ');
-        if (!errStr) {
-            return true;
-        }
-        const errMsg = `There were errors while loading the DOM: ${errStr}.`;
-        alert(errMsg);
-        console.log(errMsg);
-
-        return false;
-    }
     initForm() {
-        if (!this._checkValidForm()) return;
+        //if (!this._checkValidForm()) return false;
         this.addBookBtn.addEventListener('click', () => this.addBookPressed());
-        this.eventController.subscribe('add-book-success', () => this.addNewBook());
-        this.eventController.subscribe('add-book-error', (errObj) => this.rejectBook(errObj));
+        this.eventController.subscribe('add-book-success', (data) => this.addNewBook(data));
+        this.eventController.subscribe('add-book-fail', (data) => this.rejectBook(data));
+        return true;
     }
 
     rejectBook(errObj) {
@@ -57,17 +44,18 @@ class Form {
         this.eventController.processEvent('add-book-request', bookData);
     }
 
+    dataToStr(obj) {
+        return `${obj.title} by ${obj.author}, ${obj.year}. ISBN: ${obj.isbn}`;
+    }
+
     addNewBook(changeObj) {
+        console.log('addNewBook', changeObj);
         const li = document.createElement('li');
-        li.appendChild(document.createTextNode(dataToStr(changeObj)));
+        li.appendChild(document.createTextNode(this.dataToStr(changeObj)));
         li.id = `book-id-${changeObj.isbn}`;
         this.result.appendChild(li);
         this.clearInputs();
         this.updateStats(changeObj);
-
-        function dataToStr(obj) {
-            return `${obj.title} by ${obj.author}, ${obj.year}. ISBN: ${obj.isbn}`;
-        }
     }
 
     clearInputs() {

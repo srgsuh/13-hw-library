@@ -1,34 +1,92 @@
-function Book(isbn, title, author, year) {
-    this.isbn = isbn;
-    this.title = title;
-    this.author = author;
-    this.year = +year;
-    this.toString = function () {
-        return `ISBN:${this.isbn}; "${this.title}" by ${this.author}, ${this.year}`;
-    }
-    this.print = function() {
-        console.log(this.toString());
+const MIN_YEAR = 1445;
+const MAX_YEAR = new Date().getFullYear();
+class Book{
+    constructor(isbn, title, author, year) {
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+        this.year = +year;
     }
 }
-Book.of = function (inputStr) {
-    return new Book(...inputStr.split(';').map(str => str.trim()));
-}
-function Library() {
-    this._books = new Map();
-    this.hasISBN = function(isbn) {
-        return this._books.has(isbn);
+
+class Library {
+    _books;
+    _eventController;
+    constructor(eventController) {
+        this._books = new Map();
+        this._eventController = eventController;
     }
-    this.addUniqueBook = function(book) {
-        if (!book.isbn || this.hasISBN(book.isbn)) {
-            return false;
-        }
-        this._books.set(book.isbn, book);
+
+    init() {
+        this._eventController.subscribe('add-book-request', (data) => this.addUniqueBook(data));
         return true;
     }
-    this.forEach = function(callback) {
+
+    validateBookData({isbn, title, author, year}) {
+        const errors = []
+        if (!isbn) {
+            errors.push('ISBN is required');
+        }
+        else {
+            if (this.hasISBN(isbn)) {
+                errors.push('ISBN already exists');
+            }
+        }
+        if (!title) {
+            errors.push('Title is required');
+        }
+        if (!author) {
+            errors.push('Author is required');
+        }
+        if (!year) {
+            errors.push('Year is required');
+        }
+        else {
+            if (year < MIN_YEAR || year > MAX_YEAR) {
+                errors.push(`Year must be between ${MIN_YEAR} and ${MAX_YEAR}`);
+            }
+        }
+
+        if (errors.length === 0) {
+            return {valid: true, message: ''};
+        }
+        return {valid: false, message: errors.join(', ')}
+    }
+
+    hasISBN(isbn) {
+        return this._books.has(isbn);
+    }
+    addUniqueBook (bookData) {
+        const validationResult = this.validateBookData(bookData);
+        if (!validationResult.valid) {
+            this._eventController.processEvent('add-book-fail', validationResult);
+            return false;
+        }
+        const book = new Book(bookData.isbn, bookData.title, bookData.author, bookData.year);
+        this._books.set(bookData.isbn, book);
+        const result = {};
+        Object.assign(result, book);
+        Object.assign(result, this.getStatistics());
+        this._eventController.processEvent('add-book-success', result);
+        return true;
+    }
+
+    getStatistics() {
+        if (this._books.size === 0) {
+            return {
+                booksCount: 0,
+                minYear: null,
+                maxYear: null,
+            }
+        }
+        return {
+            booksCount: this._books.size,
+            minYear: [].reduce.call(this._books.values(), (min, book) => Math.min(min, book.year), MAX_YEAR),
+            maxYear: [].reduce.call(this._books.values(), (max, book) => Math.max(max, book.year), MIN_YEAR),
+        }
+    }
+
+    forEach(callback) {
         this._books.values().forEach(callback);
     }
-    this.print = function() {
-        this.forEach(b => b.print());
-    };
 }
