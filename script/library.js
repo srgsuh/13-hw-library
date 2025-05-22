@@ -67,10 +67,8 @@ class Library {
         }
         const book = new Book(bookData.isbn, bookData.title, bookData.author, bookData.year);
         this._books.set(bookData.isbn, book);
-        const result = {};
-        Object.assign(result, bookData);
-        Object.assign(result, this.getStatistics());
-        this._eventController.processEvent('add-book-success', result);
+        const reply = Object.assign({}, bookData, this.getStatistics());
+        this._eventController.processEvent('add-book-success', reply);
         return true;
     }
 
