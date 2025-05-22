@@ -45,7 +45,7 @@ class Form {
     }
 
     dataToStr(obj) {
-        return `${obj.title} by ${obj.author}, ${obj.year}. ISBN: ${obj.isbn}`;
+        return `"${obj.title}" by ${obj.author}, ${obj.year}. ISBN: ${obj.isbn}`;
     }
 
     addNewBook(changeObj) {
@@ -65,7 +65,26 @@ class Form {
         this.year.value = '';
     }
 
-    updateStats(changeObj) {
+    createStatsLine(text) {
+        const li = document.createElement('li');
+        li.appendChild(document.createTextNode(text));
+        return li;
+    }
 
+    updateStats(changeObj) {
+        console.log('updateStats changeObj:', changeObj);
+        const stats = this.stats;
+        let statList = stats.querySelector('ul');
+        console.log('updateStats statList:', statList);
+        if (statList) {
+            statList.remove();
+        }
+        if (changeObj && changeObj.booksCount > 0) {
+            statList = document.createElement('ul');
+            statList.appendChild(this.createStatsLine(`Books count: ${changeObj.booksCount}`));
+            statList.appendChild(this.createStatsLine(`Min year: ${changeObj.minYear}`));
+            statList.appendChild(this.createStatsLine(`Max year: ${changeObj.maxYear}`));
+            stats.appendChild(statList);
+        }
     }
 }
