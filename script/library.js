@@ -22,6 +22,10 @@ class Library {
         return true;
     }
 
+    validateISBN(isbn) {
+        return isbn.length === 13;
+    }
+
     validateBookData({isbn, title, author, year}) {
         const errors = []
         if (!isbn) {
@@ -32,12 +36,15 @@ class Library {
                 errors.push('ISBN already exists');
             }
         }
+
         if (!title) {
             errors.push('Title is required');
         }
+
         if (!author) {
             errors.push('Author is required');
         }
+
         if (!year) {
             errors.push('Year is required');
         }
@@ -46,11 +53,10 @@ class Library {
                 errors.push(`Year must be between ${MIN_YEAR} and ${MAX_YEAR}`);
             }
         }
-
         if (errors.length === 0) {
             return {valid: true, message: ''};
         }
-        return {valid: false, message: errors.join(', ')}
+        return {valid: false, message: errors.join(',\n')}
     }
 
     hasISBN(isbn) {
@@ -65,7 +71,7 @@ class Library {
         const book = new Book(bookData.isbn, bookData.title, bookData.author, bookData.year);
         this._books.set(bookData.isbn, book);
         const result = {};
-        Object.assign(result, book);
+        Object.assign(result, bookData);
         Object.assign(result, this.getStatistics());
         this._eventController.processEvent('add-book-success', result);
         return true;
@@ -81,12 +87,9 @@ class Library {
         }
         return {
             booksCount: this._books.size,
-            minYear: [].reduce.call(this._books.values(), (min, book) => Math.min(min, book.year), MAX_YEAR),
-            maxYear: [].reduce.call(this._books.values(), (max, book) => Math.max(max, book.year), MIN_YEAR),
+            minYear: [...this._books.values()].reduce((min, book) => Math.min(min, book.year), MAX_YEAR),
+            maxYear: [...this._books.values()].reduce((max, book) => Math.max(max, book.year), MIN_YEAR),
         }
     }
 
-    forEach(callback) {
-        this._books.values().forEach(callback);
-    }
 }

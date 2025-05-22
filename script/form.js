@@ -17,9 +17,6 @@ class Form {
         this.addBookBtn = document.getElementById('add-book');
         this.result = document.getElementById('result');
         this.stats = document.getElementById('stats');
-        for (let key in this) {
-            console.log(key, this[key]);
-        }
     }
 
     initForm() {
@@ -49,7 +46,6 @@ class Form {
     }
 
     addNewBook(changeObj) {
-        console.log('addNewBook', changeObj);
         const li = document.createElement('li');
         li.appendChild(document.createTextNode(this.dataToStr(changeObj)));
         li.id = `book-id-${changeObj.isbn}`;
@@ -72,10 +68,8 @@ class Form {
     }
 
     updateStats(changeObj) {
-        console.log('updateStats changeObj:', changeObj);
         const stats = this.stats;
         let statList = stats.querySelector('ul');
-        console.log('updateStats statList:', statList);
         if (statList) {
             statList.remove();
         }
