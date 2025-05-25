@@ -12,6 +12,7 @@ class Form {
     result;
     stats;
     eventController;
+    actions;
 
     constructor(eventController) {
         this.eventController = eventController;
@@ -22,6 +23,7 @@ class Form {
         this.addBookBtn = document.getElementById('add-book');
         this.result = document.getElementById('result');
         this.stats = document.getElementById('stats');
+        this.actions = new Map();
         this._initForm();
     }
 
@@ -30,6 +32,10 @@ class Form {
         this.addBookBtn.addEventListener('click', () => this.addBookPressed());
         this.eventController.subscribe('add-book-success', (data) => this.addNewBook(data));
         this.eventController.subscribe('add-book-fail', (data) => this.rejectBook(data));
+        this.eventController.subscribe('delete-book-success', (data) => this.deleteBookSuccess(data));
+
+        this.actions.set('delete', (delRequestObj) => this.eventController.processEvent('delete-book-request', delRequestObj));
+
         return true;
     }
 
@@ -75,10 +81,16 @@ class Form {
         return div;
     }
 
-    addNewBook(changeObj) {
+    createListItem(changeObj) {
         const li = document.createElement('li');
         li.appendChild(this.createLibraryItem(changeObj));
         li.dataset.isbn = changeObj.isbn;
+        li.addEventListener('click', (event) => this.deleteBookClick(event));
+        return li;
+    }
+
+    addNewBook(changeObj) {
+        const li = this.createListItem(changeObj);
         this.result.appendChild(li);
         this.clearInputs();
         this.updateStats(changeObj);
@@ -110,5 +122,24 @@ class Form {
             statList.appendChild(this.createStatsLine(`Max year: ${changeObj.maxYear}`));
             stats.appendChild(statList);
         }
+    }
+
+    deleteBookClick(event) {
+        const li = event.target.closest('li');
+        if (!li) return;
+        const action = event.target.dataset.action;
+        const isbn = li.dataset.isbn;
+        if (action && isbn && this.actions.has(action)) {
+            this.actions.get(action)({isbn});
+        }
+    }
+
+    deleteBookSuccess(data) {
+        const isbn = data.isbn;
+        const li = this.result.querySelector(`li[data-isbn="${isbn}"]`);
+        if (li) {
+            li.remove();
+        }
+        this.updateStats(data);
     }
 }

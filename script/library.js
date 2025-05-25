@@ -20,6 +20,7 @@ class Library {
 
     _init() {
         this._eventController.subscribe('add-book-request', (data) => this.addUniqueBook(data));
+        this._eventController.subscribe('delete-book-request', (data) => this.deleteBook(data));
         return true;
     }
 
@@ -69,6 +70,16 @@ class Library {
         this._books.set(bookData.isbn, book);
         const reply = Object.assign({}, bookData, this.getStatistics());
         this._eventController.processEvent('add-book-success', reply);
+        return true;
+    }
+
+    deleteBook({isbn}) {
+        if (!this.hasISBN(isbn)) {
+            return false;
+        }
+        this._books.delete(isbn);
+        const reply = Object.assign({isbn}, this.getStatistics());
+        this._eventController.processEvent('delete-book-success', reply);
         return true;
     }
 
