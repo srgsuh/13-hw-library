@@ -34,6 +34,8 @@ class Form {
         this.eventController.subscribe('add-book-fail', (data) => this.rejectBook(data));
         this.eventController.subscribe('delete-book-success', (data) => this.deleteBookSuccess(data));
 
+        this.result.addEventListener('click', (event) => this.deleteBookClick(event));
+
         this.actions.set('delete', (delRequestObj) => this.eventController.processEvent('delete-book-request', delRequestObj));
 
         return true;
@@ -85,7 +87,6 @@ class Form {
         const li = document.createElement('li');
         li.appendChild(this.createLibraryItem(changeObj));
         li.dataset.isbn = changeObj.isbn;
-        li.addEventListener('click', (event) => this.deleteBookClick(event));
         return li;
     }
 
