@@ -1,6 +1,25 @@
 * {
     box-sizing: border-box;
 }
+.icon-button {
+    cursor: pointer;
+    height: 24px;
+    padding: 0 4px;
+    /*background-color: red;*/
+}
+.library-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.library-item-text {
+    display: inline-block;
+}
+.book-list {
+    padding-left: 20px;
+    margin: 0;
+    text-align: justify;
+}
 body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     background-color: #F8F4E6;

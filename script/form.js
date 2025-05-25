@@ -1,3 +1,8 @@
+const IMG_TRASH = {
+    src: '../img/trash.svg',
+    alt: 'Delete book',
+    action: 'delete',
+}
 class Form {
     isbn;
     title;
@@ -46,10 +51,34 @@ class Form {
         return `"${obj.title}" by ${obj.author}, ${obj.year}. ISBN: ${obj.isbn}`;
     }
 
+    createIconButton({src, alt}) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = img.title = alt;
+        img.classList.add('icon-button');
+        img.dataset.action = 'delete';
+        return img;
+    }
+
+    createLibraryItemText(changeObj) {
+        const span = document.createElement('span');
+        span.appendChild(document.createTextNode(this.dataToStr(changeObj)));
+        span.classList.add('library-item-text');
+        return span;
+    }
+
+    createLibraryItem(changeObj) {
+        const div = document.createElement('div');
+        div.classList.add('library-item');
+        div.appendChild(this.createLibraryItemText(changeObj));
+        div.appendChild(this.createIconButton(IMG_TRASH));
+        return div;
+    }
+
     addNewBook(changeObj) {
         const li = document.createElement('li');
-        li.appendChild(document.createTextNode(this.dataToStr(changeObj)));
-        li.id = `book-id-${changeObj.isbn}`;
+        li.appendChild(this.createLibraryItem(changeObj));
+        li.dataset.isbn = changeObj.isbn;
         this.result.appendChild(li);
         this.clearInputs();
         this.updateStats(changeObj);
