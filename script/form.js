@@ -11,6 +11,7 @@ class Form {
     addBookBtn
     result;
     stats;
+    focusable;
     eventController;
     actions;
 
@@ -24,6 +25,7 @@ class Form {
         this.result = document.getElementById('result');
         this.stats = document.getElementById('stats');
         this.actions = new Map();
+        this.focusable = [this.isbn, this.title, this.author, this.year];
         this._initForm();
     }
 
@@ -34,15 +36,39 @@ class Form {
         this.eventController.subscribe('add-book-fail', (data) => this.rejectBook(data));
         this.eventController.subscribe('delete-book-success', (data) => this.deleteBookSuccess(data));
 
-        this.result.addEventListener('click', (event) => this.deleteBookClick(event));
+        this.result.addEventListener('click', (event) => this.onListClick(event));
+        document.addEventListener('keydown', (event) => this.onEnterPress(event));
 
-        this.actions.set('delete', (delRequestObj) => this.eventController.processEvent('delete-book-request', delRequestObj));
+        this.actions.set(IMG_TRASH.action,
+            (data) => this.deleteBookRequest(data)
+        );
 
         return true;
     }
 
+    setFocusOnStart() {
+        this.isbn.focus();
+    }
+
+    onEnterPress(event) {
+        if (event.key !== 'Enter') {
+            return;
+        }
+        const fIndex = this.focusable.indexOf(event.target);
+        if (fIndex === -1) {
+            return;
+        }
+        if (fIndex === this.focusable.length - 1) {
+            this.addBookPressed();
+        }
+        else {
+            this.focusable[1 + fIndex].focus();
+        }
+    }
+
     rejectBook(errObj) {
         alert(errObj.message);
+        this.setFocusOnStart();
     }
 
     addBookPressed() {
@@ -95,6 +121,7 @@ class Form {
         this.result.appendChild(li);
         this.clearInputs();
         this.updateStats(changeObj);
+        this.setFocusOnStart();
     }
 
     clearInputs() {
@@ -125,13 +152,19 @@ class Form {
         }
     }
 
-    deleteBookClick(event) {
+    onListClick(event) {
         const li = event.target.closest('li');
         if (!li) return;
         const action = event.target.dataset.action;
         const isbn = li.dataset.isbn;
-        if (action && isbn && this.actions.has(action)) {
-            this.actions.get(action)({isbn});
+        if (action && this.actions.has(action)) {
+            this.actions.get(action)({action, isbn});
+        }
+    }
+
+    deleteBookRequest(data) {
+        if (data.isbn) {
+            this.eventController.processEvent('delete-book-request', data);
         }
     }
 
@@ -142,5 +175,6 @@ class Form {
             li.remove();
         }
         this.updateStats(data);
+        this.setFocusOnStart();
     }
 }
