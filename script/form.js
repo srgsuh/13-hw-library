@@ -1,7 +1,13 @@
+const ACTIONS = {
+    changeFocus: 'change-focus',
+    delete: 'delete',
+    add: 'add',
+}
+
 const IMG_TRASH = {
     src: '../img/trash.svg',
     alt: 'Delete book',
-    action: 'delete',
+    action: ACTIONS.delete,
 }
 class Form {
     isbn;
@@ -31,7 +37,7 @@ class Form {
 
     _initForm() {
         //if (!this._checkValidForm()) return false;
-        this.addBookBtn.addEventListener('click', () => this.addBookPressed());
+        this.addBookBtn.addEventListener('click', () => this.addBookRequest());
         this.eventController.subscribe('add-book-success', (data) => this.addNewBook(data));
         this.eventController.subscribe('add-book-fail', (data) => this.rejectBook(data));
         this.eventController.subscribe('delete-book-success', (data) => this.deleteBookSuccess(data));
@@ -39,9 +45,15 @@ class Form {
         this.result.addEventListener('click', (event) => this.onListClick(event));
         document.addEventListener('keydown', (event) => this.onEnterPress(event));
 
-        this.actions.set(IMG_TRASH.action,
-            (data) => this.deleteBookRequest(data)
+        this.isbn.dataset.action = ACTIONS.changeFocus;
+        this.title.dataset.action = ACTIONS.changeFocus;
+        this.author.dataset.action = ACTIONS.changeFocus;
+        this.year.dataset.action = ACTIONS.add;
+        this.actions.set(ACTIONS.delete,
+            (element) => this.deleteBookRequest(element)
         );
+        this.actions.set(ACTIONS.changeFocus, (element) => this.changeFocus(element));
+        this.actions.set(ACTIONS.add, () => this.addBookRequest());
 
         return true;
     }
@@ -50,28 +62,12 @@ class Form {
         this.isbn.focus();
     }
 
-    onEnterPress(event) {
-        if (event.key !== 'Enter') {
-            return;
-        }
-        const fIndex = this.focusable.indexOf(event.target);
-        if (fIndex === -1) {
-            return;
-        }
-        if (fIndex === this.focusable.length - 1) {
-            this.addBookPressed();
-        }
-        else {
-            this.focusable[1 + fIndex].focus();
-        }
-    }
-
     rejectBook(errObj) {
         alert(errObj.message);
         this.setFocusOnStart();
     }
 
-    addBookPressed() {
+    addBookRequest() {
         const bookData = {
             isbn: this.isbn.value,
             title: this.title.value,
@@ -152,19 +148,35 @@ class Form {
         }
     }
 
-    onListClick(event) {
-        const li = event.target.closest('li');
-        if (!li) return;
-        const action = event.target.dataset.action;
-        const isbn = li.dataset.isbn;
+    onEnterPress(event) {
+        if (event.key !== 'Enter') {
+            return;
+        }
+        const target = event.target;
+        const action = target.dataset.action;
         if (action && this.actions.has(action)) {
-            this.actions.get(action)({action, isbn});
+            this.actions.get(action)(target);
         }
     }
 
-    deleteBookRequest(data) {
-        if (data.isbn) {
-            this.eventController.processEvent('delete-book-request', data);
+    onListClick(event) {
+        const action = event.target.dataset.action;
+        if (action && this.actions.has(action)) {
+            this.actions.get(action)(event.target);
+        }
+    }
+
+    changeFocus(element) {
+        const fIndex = this.focusable.indexOf(element);
+        if (fIndex >= 0 && fIndex < this.focusable.length - 1) {
+            this.focusable[fIndex + 1].focus();
+        }
+    }
+
+    deleteBookRequest(element) {
+        const isbn = element.closest('li')?.dataset?.isbn;
+        if (isbn) {
+            this.eventController.processEvent('delete-book-request', {isbn});
         }
     }
 
