@@ -5,7 +5,7 @@ const ACTIONS = {
 }
 
 const IMG_TRASH = {
-    src: '../img/trash.svg',
+    src: './img/trash.svg',
     alt: 'Delete book',
     action: ACTIONS.delete,
 }
